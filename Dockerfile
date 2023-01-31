@@ -1,1 +1,0 @@
-FROM arigaio/atlas-sync-action:latest
