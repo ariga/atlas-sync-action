@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/sethvargo/go-githubactions"
+)
 
 func main() {
-	fmt.Println("Hello, GitHub")
+	githubactions.Noticef("Hello, GitHub Actions")
 }
