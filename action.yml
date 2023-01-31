@@ -1,0 +1,18 @@
+name: 'atlas-sync-action'
+description: 'Sync your migration directory to Atlas Cloud'
+branding:
+  icon: database
+author: 'Ariga'
+inputs:
+  dir:
+    description: 'select migration directory relative to working directory'
+    required: false
+  dir-format:
+    description: 'Dir format for migration files ("atlas", "golang-migrate", "goose", "flyway", "liquibase", "dbmate")'
+    required: false
+  cloud-token:
+    description: 'Token for using Atlas Cloud (should be passed as a secret).'
+    required: false
+runs:
+  using: 'docker'
+  image: 'docker://arigaio/atlas-sync-action:latest'
