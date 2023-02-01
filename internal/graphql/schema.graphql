@@ -29,7 +29,7 @@ input UploadDirInput {
   """
   Project this directory belongs to.
   """
-  projectName: String!
+  name: String
   """
   Atlas driver used to compute directory state.
   """
@@ -63,9 +63,6 @@ type Mutation {
 
 enum DirFormat {
   ATLAS
-  LIQUIBASE
-  FLYWAY
-  GOLANG_MIGRATE
 }
 
 """Driver is enum for the field driver"""

@@ -11,10 +11,7 @@ import (
 type DirFormat string
 
 const (
-	DirFormatAtlas         DirFormat = "ATLAS"
-	DirFormatLiquibase     DirFormat = "LIQUIBASE"
-	DirFormatFlyway        DirFormat = "FLYWAY"
-	DirFormatGolangMigrate DirFormat = "GOLANG_MIGRATE"
+	DirFormatAtlas DirFormat = "ATLAS"
 )
 
 // Driver is enum for the field driver
@@ -39,7 +36,7 @@ type UploadDirInput struct {
 	// The URL back to the action that triggers this upload.
 	Url string `json:"url"`
 	// Project this directory belongs to.
-	ProjectName string `json:"projectName"`
+	Name string `json:"name"`
 	// Atlas driver used to compute directory state.
 	Driver Driver `json:"driver"`
 	// Directory content.
@@ -63,8 +60,8 @@ func (v *UploadDirInput) GetPath() string { return v.Path }
 // GetUrl returns UploadDirInput.Url, and is useful for accessing the field via an interface.
 func (v *UploadDirInput) GetUrl() string { return v.Url }
 
-// GetProjectName returns UploadDirInput.ProjectName, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetProjectName() string { return v.ProjectName }
+// GetName returns UploadDirInput.Name, and is useful for accessing the field via an interface.
+func (v *UploadDirInput) GetName() string { return v.Name }
 
 // GetDriver returns UploadDirInput.Driver, and is useful for accessing the field via an interface.
 func (v *UploadDirInput) GetDriver() Driver { return v.Driver }
