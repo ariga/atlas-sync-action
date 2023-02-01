@@ -58,7 +58,7 @@ jobs:
           load: true
       - run: docker images
       - name: sanity
-        uses: ./internal/test
+        uses: ./internal/action
   docker:
     runs-on: ubuntu-latest
     needs: [golangci-lint, unit-tests, integration-tests]
