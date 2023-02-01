@@ -17,6 +17,9 @@ func main() {
 // Archive returns a txtar archive of the given migration directory.
 func Archive(path string) (string, error) {
 	d, err := migrate.NewLocalDir(path)
+	if err != nil {
+		return "", err
+	}
 	files, err := d.Files()
 	if err != nil {
 		return "", err
