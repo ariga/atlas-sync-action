@@ -1,0 +1,76 @@
+
+"""Maps a Bytes GraphQL scalar to a go []byte type."""
+scalar Bytes
+
+"""
+Input type of UploadDir
+"""
+input UploadDirInput {
+  """
+  Repository full name. e.g., "owner/repo".
+  """
+  repo: String!
+  """
+  Branch name.
+  """
+  branch: String!
+  """
+  Commit SHA.
+  """
+  commit: String!
+  """
+  File path relative to the repository root.
+  """
+  path: String!
+  """
+  The URL back to the action that triggers this upload.
+  """
+  url: String!
+  """
+  Project this directory belongs to.
+  """
+  projectName: String!
+  """
+  Atlas driver used to compute directory state.
+  """
+  driver: Driver!
+  """
+  Directory content.
+  """
+  dir: Bytes!
+  """
+  Format of the directory.
+  """
+  dirFormat: DirFormat! = ATLAS
+}
+
+"""
+Return type of UploadDir.
+"""
+type UploadDirPayload {
+  """
+  Indicate if the operation succeeded.
+  """
+  success: Boolean
+}
+
+type Mutation {
+  """
+  Upload a directory.
+  """
+  uploadDir(input: UploadDirInput!): UploadDirPayload!
+}
+
+enum DirFormat {
+  ATLAS
+  LIQUIBASE
+  FLYWAY
+  GOLANG_MIGRATE
+}
+
+"""Driver is enum for the field driver"""
+enum Driver  {
+  MYSQL
+  POSTGRESQL
+  SQLITE
+}
