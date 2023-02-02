@@ -51,7 +51,7 @@ type UploadDirPayload {
   """
   Indicate if the operation succeeded.
   """
-  success: Boolean
+  success: Boolean!
 }
 
 type Mutation {

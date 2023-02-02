@@ -6,6 +6,8 @@ operations:
   - client.go
 generated: generated.go
 
+optional: pointer
+
 bindings:
   Bytes:
-    type: "[]byte"
+    type: string

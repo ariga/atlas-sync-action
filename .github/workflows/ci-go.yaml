@@ -59,6 +59,8 @@ jobs:
         with:
           dir: internal/testdata/basic/migrations
           driver: mysql
+          cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
+          cloud-url: ${{ secrets.ATLAS_CLOUD_URL }}
   docker:
     runs-on: ubuntu-latest
     needs: [golangci-lint, unit-tests, integration-tests]
