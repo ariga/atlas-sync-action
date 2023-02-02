@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	cloudDNS = "https://ingress.atlasgo.cloud"
+	cloudDomain = "https://ingress.atlasgo.cloud"
 )
 
 func main() {
@@ -128,7 +128,7 @@ func client(act *githubactions.Action) *atlascloud.Client {
 	if token == "" {
 		act.Fatalf("cloud-token is required")
 	}
-	d := cloudDNS
+	d := cloudDomain
 	if u := act.GetInput("cloud-url"); u != "" {
 		d = u
 	}
