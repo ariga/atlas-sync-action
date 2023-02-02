@@ -39,15 +39,15 @@ jobs:
 
 Configure this action with the following inputs:
 
-### `dir`
+#### `dir`
 
 **Required** The path to the directory containing your migrations.
 
-### `driver`
+#### `driver`
 
 **Required** The database driver to use. One of: `mysql`, `postgres`, `sqlite`.
 
-### `cloud-token`
+#### `cloud-token`
 
 **Required** The Atlas Cloud token to use for authentication.
 
