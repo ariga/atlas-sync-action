@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"strings"
 
 	"ariga.io/atlas-sync-action/internal/atlascloud"
 	"ariga.io/atlas/sql/migrate"
@@ -91,7 +92,7 @@ func Input(act *githubactions.Action) (atlascloud.UploadDirInput, error) {
 }
 
 func driver(s string) (atlascloud.Driver, error) {
-	switch s {
+	switch s := strings.ToLower(s); s {
 	case "postgres":
 		return atlascloud.DriverPostgresql, nil
 	case "mysql":
