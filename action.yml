@@ -9,10 +9,10 @@ inputs:
     required: true
   cloud-token:
     description: 'Token for using Atlas Cloud (should be passed as a secret).'
-    required: false
+    required: true
   driver:
     description: 'Driver for the target database: mysql, postgres, sqlite'
-    required: false
+    required: true
 runs:
   using: 'docker'
   image: 'docker://arigaio/atlas-sync-action:latest'

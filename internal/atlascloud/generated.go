@@ -36,11 +36,11 @@ type UploadDirInput struct {
 	// The URL back to the action that triggers this upload.
 	Url string `json:"url"`
 	// Project this directory belongs to.
-	Name string `json:"name"`
+	Name *string `json:"name"`
 	// Atlas driver used to compute directory state.
 	Driver Driver `json:"driver"`
 	// Directory content.
-	Dir []byte `json:"dir"`
+	Dir string `json:"dir"`
 	// Format of the directory.
 	DirFormat DirFormat `json:"dirFormat"`
 }
@@ -61,13 +61,13 @@ func (v *UploadDirInput) GetPath() string { return v.Path }
 func (v *UploadDirInput) GetUrl() string { return v.Url }
 
 // GetName returns UploadDirInput.Name, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetName() string { return v.Name }
+func (v *UploadDirInput) GetName() *string { return v.Name }
 
 // GetDriver returns UploadDirInput.Driver, and is useful for accessing the field via an interface.
 func (v *UploadDirInput) GetDriver() Driver { return v.Driver }
 
 // GetDir returns UploadDirInput.Dir, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetDir() []byte { return v.Dir }
+func (v *UploadDirInput) GetDir() string { return v.Dir }
 
 // GetDirFormat returns UploadDirInput.DirFormat, and is useful for accessing the field via an interface.
 func (v *UploadDirInput) GetDirFormat() DirFormat { return v.DirFormat }

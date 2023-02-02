@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
+	"net/url"
 	"strings"
 
 	"ariga.io/atlas-sync-action/internal/atlascloud"
@@ -13,13 +15,30 @@ import (
 	"golang.org/x/tools/txtar"
 )
 
+const (
+	cloudDomain = "https://ingress.atlasgo.cloud"
+)
+
 func main() {
 	act := githubactions.New()
+	token := act.GetInput("cloud-token")
+	if token == "" {
+		act.Fatalf("cloud-token is required")
+	}
 	input, err := Input(act)
 	if err != nil {
 		act.Fatalf("failed to parse input: %v", err)
 	}
-	githubactions.Noticef("%v", input)
+	arc, err := Archive(input.Path)
+	if err != nil {
+		act.Fatalf("failed to archive migration dir: %v", err)
+	}
+	input.Dir = arc
+	c := client(act)
+	if err := c.UploadDir(context.Background(), input); err != nil {
+		act.Fatalf("failed to upload dir: %v", err)
+	}
+	githubactions.Infof("Uploaded migration dir %q to Atlas Cloud", input.Path)
 }
 
 // Archive returns a txtar archive of the given migration directory.
@@ -102,6 +121,23 @@ func driver(s string) (atlascloud.Driver, error) {
 	default:
 		return "", fmt.Errorf("unknown driver %q", s)
 	}
+}
+
+func client(act *githubactions.Action) *atlascloud.Client {
+	token := act.GetInput("cloud-token")
+	if token == "" {
+		act.Fatalf("cloud-token is required")
+	}
+	d := cloudDomain
+	if u := act.GetInput("cloud-url"); u != "" {
+		d = u
+	}
+	u, err := url.Parse(d)
+	if err != nil {
+		act.Fatalf("failed to parse cloud-url: %v", err)
+	}
+	u.Path = "/api/query"
+	return atlascloud.New(u.String(), token)
 }
 
 type PushEvent struct {
