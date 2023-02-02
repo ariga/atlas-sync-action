@@ -6,9 +6,12 @@ author: 'Ariga'
 inputs:
   dir:
     description: 'select migration directory relative to working directory'
-    required: false
+    required: true
   cloud-token:
     description: 'Token for using Atlas Cloud (should be passed as a secret).'
+    required: false
+  driver:
+    description: 'Driver for the target database: mysql, postgres, sqlite'
     required: false
 runs:
   using: 'docker'
