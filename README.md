@@ -6,7 +6,7 @@ A GitHub Action for syncing a migration directory to [Atlas Cloud](https://atlas
 
 Use this action in your workflow to sync your migration directory to Atlas Cloud.
 It is highly recommended that you only run this action on the main branch of your repository,
-as it's purpose is to persist the desired state of your migration directory.
+as its purpose is to persist the desired state of your migration directory.
 
 To use this action, you must first have a token with permissions to write to your
 account. To create it:
