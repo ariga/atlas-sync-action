@@ -24,11 +24,11 @@ on:
     branches:
       - master # Only run on our main branch
 jobs:
-  gen:
+  sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: atlasgo/atlas-sync-action@v0
+      - uses: ariga/atlas-sync-action@v0
           with:
             dir: path/to/migrations
             driver: mysql # or: postgres | sqlite
