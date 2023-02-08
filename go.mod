@@ -8,7 +8,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/sethvargo/go-githubactions v1.1.0
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
-	golang.org/x/tools v0.5.0
 )
 
 require (

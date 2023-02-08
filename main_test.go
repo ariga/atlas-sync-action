@@ -31,13 +31,14 @@ func TestInput(t *testing.T) {
 	}))
 	input, err := Input(act)
 	require.NoError(t, err)
-	require.EqualValues(t, atlascloud.UploadDirInput{
-		Repo:      "ariga/test",
-		Commit:    "1234567890",
-		Branch:    "master",
-		Path:      "migrations/",
-		Driver:    atlascloud.DriverMysql,
-		Url:       "https://github.com/ariga/atlas-sync-action/commit/4a3f0bcb6dff19078393728f1b69d89d853771eb",
-		DirFormat: atlascloud.DirFormatAtlas,
+	require.EqualValues(t, atlascloud.ReportDirInput{
+		Repo:          "ariga/test",
+		Commit:        "1234567890",
+		Branch:        "master",
+		Path:          "migrations/",
+		Driver:        atlascloud.DriverMysql,
+		Url:           "https://github.com/ariga/atlas-sync-action/commit/4a3f0bcb6dff19078393728f1b69d89d853771eb",
+		DirFormat:     atlascloud.DirFormatAtlas,
+		ArchiveFormat: atlascloud.ArchiveFormatB64Tar,
 	}, input)
 }

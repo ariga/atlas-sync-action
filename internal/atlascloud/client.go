@@ -29,19 +29,19 @@ func New(endpoint, token string) *Client {
 	return &Client{client: c}
 }
 
-// UploadDir uploads a directory to the Atlas Cloud API.
-func (c *Client) UploadDir(ctx context.Context, input UploadDirInput) error {
+// ReportDir reports a directory to the Atlas Cloud API.
+func (c *Client) ReportDir(ctx context.Context, input ReportDirInput) error {
 	_ = `# @genqlient
-	mutation uploadDir($input: UploadDirInput!) {
-		uploadDir(input: $input) {
+	mutation reportDir($input: ReportDirInput!) {
+		reportDir(input: $input) {
 			success
 		}
 	}`
-	p, err := uploadDir(ctx, c.client, input)
+	p, err := reportDir(ctx, c.client, input)
 	if err != nil {
 		return err
 	}
-	if !p.GetUploadDir().Success {
+	if !p.GetReportDir().Success {
 		return errors.New("upload failed")
 	}
 	return nil

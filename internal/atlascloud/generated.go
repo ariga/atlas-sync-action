@@ -8,6 +8,13 @@ import (
 	"github.com/Khan/genqlient/graphql"
 )
 
+type ArchiveFormat string
+
+const (
+	// base64 encoded tar format.
+	ArchiveFormatB64Tar ArchiveFormat = "B64_TAR"
+)
+
 type DirFormat string
 
 const (
@@ -23,8 +30,8 @@ const (
 	DriverSqlite     Driver = "SQLITE"
 )
 
-// Input type of UploadDir
-type UploadDirInput struct {
+// Input type of ReportDir
+type ReportDirInput struct {
 	// Repository full name. e.g., "owner/repo".
 	Repo string `json:"repo"`
 	// Branch name.
@@ -43,85 +50,90 @@ type UploadDirInput struct {
 	Dir string `json:"dir"`
 	// Format of the directory.
 	DirFormat DirFormat `json:"dirFormat"`
+	// Format of the dir archive.
+	ArchiveFormat ArchiveFormat `json:"archiveFormat"`
 }
 
-// GetRepo returns UploadDirInput.Repo, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetRepo() string { return v.Repo }
+// GetRepo returns ReportDirInput.Repo, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetRepo() string { return v.Repo }
 
-// GetBranch returns UploadDirInput.Branch, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetBranch() string { return v.Branch }
+// GetBranch returns ReportDirInput.Branch, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetBranch() string { return v.Branch }
 
-// GetCommit returns UploadDirInput.Commit, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetCommit() string { return v.Commit }
+// GetCommit returns ReportDirInput.Commit, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetCommit() string { return v.Commit }
 
-// GetPath returns UploadDirInput.Path, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetPath() string { return v.Path }
+// GetPath returns ReportDirInput.Path, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetPath() string { return v.Path }
 
-// GetUrl returns UploadDirInput.Url, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetUrl() string { return v.Url }
+// GetUrl returns ReportDirInput.Url, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetUrl() string { return v.Url }
 
-// GetName returns UploadDirInput.Name, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetName() *string { return v.Name }
+// GetName returns ReportDirInput.Name, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetName() *string { return v.Name }
 
-// GetDriver returns UploadDirInput.Driver, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetDriver() Driver { return v.Driver }
+// GetDriver returns ReportDirInput.Driver, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetDriver() Driver { return v.Driver }
 
-// GetDir returns UploadDirInput.Dir, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetDir() string { return v.Dir }
+// GetDir returns ReportDirInput.Dir, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetDir() string { return v.Dir }
 
-// GetDirFormat returns UploadDirInput.DirFormat, and is useful for accessing the field via an interface.
-func (v *UploadDirInput) GetDirFormat() DirFormat { return v.DirFormat }
+// GetDirFormat returns ReportDirInput.DirFormat, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetDirFormat() DirFormat { return v.DirFormat }
 
-// __uploadDirInput is used internally by genqlient
-type __uploadDirInput struct {
-	Input UploadDirInput `json:"input"`
+// GetArchiveFormat returns ReportDirInput.ArchiveFormat, and is useful for accessing the field via an interface.
+func (v *ReportDirInput) GetArchiveFormat() ArchiveFormat { return v.ArchiveFormat }
+
+// __reportDirInput is used internally by genqlient
+type __reportDirInput struct {
+	Input ReportDirInput `json:"input"`
 }
 
-// GetInput returns __uploadDirInput.Input, and is useful for accessing the field via an interface.
-func (v *__uploadDirInput) GetInput() UploadDirInput { return v.Input }
+// GetInput returns __reportDirInput.Input, and is useful for accessing the field via an interface.
+func (v *__reportDirInput) GetInput() ReportDirInput { return v.Input }
 
-// uploadDirResponse is returned by uploadDir on success.
-type uploadDirResponse struct {
-	// Upload a directory.
-	UploadDir uploadDirUploadDirUploadDirPayload `json:"uploadDir"`
-}
-
-// GetUploadDir returns uploadDirResponse.UploadDir, and is useful for accessing the field via an interface.
-func (v *uploadDirResponse) GetUploadDir() uploadDirUploadDirUploadDirPayload { return v.UploadDir }
-
-// uploadDirUploadDirUploadDirPayload includes the requested fields of the GraphQL type UploadDirPayload.
+// reportDirReportDirReportDirPayload includes the requested fields of the GraphQL type ReportDirPayload.
 // The GraphQL type's documentation follows.
 //
-// Return type of UploadDir.
-type uploadDirUploadDirUploadDirPayload struct {
+// Return type of ReportDir.
+type reportDirReportDirReportDirPayload struct {
 	// Indicate if the operation succeeded.
 	Success bool `json:"success"`
 }
 
-// GetSuccess returns uploadDirUploadDirUploadDirPayload.Success, and is useful for accessing the field via an interface.
-func (v *uploadDirUploadDirUploadDirPayload) GetSuccess() bool { return v.Success }
+// GetSuccess returns reportDirReportDirReportDirPayload.Success, and is useful for accessing the field via an interface.
+func (v *reportDirReportDirReportDirPayload) GetSuccess() bool { return v.Success }
 
-func uploadDir(
+// reportDirResponse is returned by reportDir on success.
+type reportDirResponse struct {
+	// Report a directory.
+	ReportDir reportDirReportDirReportDirPayload `json:"reportDir"`
+}
+
+// GetReportDir returns reportDirResponse.ReportDir, and is useful for accessing the field via an interface.
+func (v *reportDirResponse) GetReportDir() reportDirReportDirReportDirPayload { return v.ReportDir }
+
+func reportDir(
 	ctx context.Context,
 	client graphql.Client,
-	input UploadDirInput,
-) (*uploadDirResponse, error) {
+	input ReportDirInput,
+) (*reportDirResponse, error) {
 	req := &graphql.Request{
-		OpName: "uploadDir",
+		OpName: "reportDir",
 		Query: `
-mutation uploadDir ($input: UploadDirInput!) {
-	uploadDir(input: $input) {
+mutation reportDir ($input: ReportDirInput!) {
+	reportDir(input: $input) {
 		success
 	}
 }
 `,
-		Variables: &__uploadDirInput{
+		Variables: &__reportDirInput{
 			Input: input,
 		},
 	}
 	var err error
 
-	var data uploadDirResponse
+	var data reportDirResponse
 	resp := &graphql.Response{Data: &data}
 
 	err = client.MakeRequest(

@@ -3,9 +3,9 @@
 scalar Bytes
 
 """
-Input type of UploadDir
+Input type of ReportDir
 """
-input UploadDirInput {
+input ReportDirInput {
   """
   Repository full name. e.g., "owner/repo".
   """
@@ -42,14 +42,16 @@ input UploadDirInput {
   Format of the directory.
   """
   dirFormat: DirFormat! = ATLAS
-
+  """
+  Format of the dir archive.
+  """
   archiveFormat: ArchiveFormat! = B64_TAR
 }
 
 """
-Return type of UploadDir.
+Return type of ReportDir.
 """
-type UploadDirPayload {
+type ReportDirPayload {
   """
   Indicate if the operation succeeded.
   """
@@ -58,9 +60,9 @@ type UploadDirPayload {
 
 type Mutation {
   """
-  Upload a directory.
+  Report a directory.
   """
-  uploadDir(input: UploadDirInput!): UploadDirPayload!
+  reportDir(input: ReportDirInput!): ReportDirPayload!
 }
 
 enum DirFormat {
@@ -75,10 +77,6 @@ enum Driver  {
 }
 
 enum ArchiveFormat {
-  """
-  txtar format.
-  """
-  TXTAR
   """
   base64 encoded tar format.
   """

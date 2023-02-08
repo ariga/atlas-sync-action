@@ -36,7 +36,7 @@ func main() {
 	}
 	input.Dir = arc
 	c := client(act)
-	if err := c.UploadDir(context.Background(), input); err != nil {
+	if err := c.ReportDir(context.Background(), input); err != nil {
 		act.Fatalf("failed to upload dir: %v", err)
 	}
 	githubactions.Infof("Uploaded migration dir %q to Atlas Cloud", input.Path)
@@ -90,29 +90,30 @@ func Archive(path string) (string, error) {
 	return b64tar(arc)
 }
 
-func Input(act *githubactions.Action) (atlascloud.UploadDirInput, error) {
+func Input(act *githubactions.Action) (atlascloud.ReportDirInput, error) {
 	c, err := act.Context()
 	if err != nil {
-		return atlascloud.UploadDirInput{}, err
+		return atlascloud.ReportDirInput{}, err
 	}
 	org, repo := c.Repo()
 	ev := PushEvent{}
 	if err := mapstructure.Decode(c.Event, &ev); err != nil {
-		return atlascloud.UploadDirInput{}, err
+		return atlascloud.ReportDirInput{}, err
 	}
 	di := act.GetInput("driver")
 	drv, err := driver(di)
 	if err != nil {
-		return atlascloud.UploadDirInput{}, err
+		return atlascloud.ReportDirInput{}, err
 	}
-	return atlascloud.UploadDirInput{
-		Repo:      fmt.Sprintf("%s/%s", org, repo),
-		Branch:    c.RefName,
-		Commit:    c.SHA,
-		Path:      act.GetInput("dir"),
-		Url:       ev.HeadCommit.URL,
-		Driver:    drv,
-		DirFormat: atlascloud.DirFormatAtlas,
+	return atlascloud.ReportDirInput{
+		Repo:          fmt.Sprintf("%s/%s", org, repo),
+		Branch:        c.RefName,
+		Commit:        c.SHA,
+		Path:          act.GetInput("dir"),
+		Url:           ev.HeadCommit.URL,
+		Driver:        drv,
+		DirFormat:     atlascloud.DirFormatAtlas,
+		ArchiveFormat: atlascloud.ArchiveFormatB64Tar,
 	}, nil
 }
 
