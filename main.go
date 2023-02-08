@@ -1,8 +1,10 @@
 package main
 
 import (
+	"archive/tar"
 	"bytes"
 	"context"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"net/url"
@@ -12,7 +14,6 @@ import (
 	"ariga.io/atlas/sql/migrate"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sethvargo/go-githubactions"
-	"golang.org/x/tools/txtar"
 )
 
 const (
@@ -41,7 +42,12 @@ func main() {
 	githubactions.Infof("Uploaded migration dir %q to Atlas Cloud", input.Path)
 }
 
-// Archive returns a txtar archive of the given migration directory.
+type file struct {
+	name string
+	data []byte
+}
+
+// Archive returns a b64 encoded tarball of the given migration directory.
 func Archive(path string) (string, error) {
 	d, err := migrate.NewLocalDir(path)
 	if err != nil {
@@ -51,11 +57,11 @@ func Archive(path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	arc := &txtar.Archive{}
+	var arc []file
 	for _, f := range files {
-		arc.Files = append(arc.Files, txtar.File{
-			Name: f.Name(),
-			Data: f.Bytes(),
+		arc = append(arc, file{
+			name: f.Name(),
+			data: f.Bytes(),
 		})
 	}
 	sumf, err := d.Open(migrate.HashFileName)
@@ -77,11 +83,11 @@ func Archive(path string) (string, error) {
 	if !bytes.Equal(curS, wantS) {
 		return "", migrate.ErrChecksumMismatch
 	}
-	arc.Files = append(arc.Files, txtar.File{
-		Name: migrate.HashFileName,
-		Data: wantS,
+	arc = append(arc, file{
+		name: migrate.HashFileName,
+		data: wantS,
 	})
-	return string(txtar.Format(arc)), nil
+	return b64tar(arc)
 }
 
 func Input(act *githubactions.Action) (atlascloud.UploadDirInput, error) {
@@ -145,4 +151,23 @@ type PushEvent struct {
 		URL string `mapstructure:"url"`
 	} `mapstructure:"head_commit"`
 	Ref string `mapstructure:"ref"`
+}
+
+func b64tar(files []file) (string, error) {
+	var buf bytes.Buffer
+	tw := tar.NewWriter(&buf)
+	for _, f := range files {
+		hdr := &tar.Header{
+			Name: f.name,
+			Mode: 0600,
+			Size: int64(len(f.data)),
+		}
+		if err := tw.WriteHeader(hdr); err != nil {
+			return "", err
+		}
+		if _, err := tw.Write(f.data); err != nil {
+			return "", err
+		}
+	}
+	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }

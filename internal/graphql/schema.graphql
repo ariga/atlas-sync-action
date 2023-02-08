@@ -42,6 +42,8 @@ input UploadDirInput {
   Format of the directory.
   """
   dirFormat: DirFormat! = ATLAS
+
+  archiveFormat: ArchiveFormat! = B64_TAR
 }
 
 """
@@ -70,4 +72,15 @@ enum Driver  {
   MYSQL
   POSTGRESQL
   SQLITE
+}
+
+enum ArchiveFormat {
+  """
+  txtar format.
+  """
+  TXTAR
+  """
+  base64 encoded tar format.
+  """
+  B64_TAR
 }
