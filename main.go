@@ -158,12 +158,11 @@ func b64tar(files []file) (string, error) {
 	var buf bytes.Buffer
 	tw := tar.NewWriter(&buf)
 	for _, f := range files {
-		hdr := &tar.Header{
+		if err := tw.WriteHeader(&tar.Header{
 			Name: f.name,
 			Mode: 0600,
 			Size: int64(len(f.data)),
-		}
-		if err := tw.WriteHeader(hdr); err != nil {
+		}); err != nil {
 			return "", err
 		}
 		if _, err := tw.Write(f.data); err != nil {
