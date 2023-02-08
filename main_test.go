@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"testing"
 
 	"ariga.io/atlas-sync-action/internal/atlascloud"
@@ -11,17 +12,9 @@ import (
 func TestArchive(t *testing.T) {
 	arc, err := Archive("internal/testdata/basic/migrations")
 	require.NoError(t, err)
-	exp := `-- 20230201094614.sql --
-create table users (
-  id int primary key,
-  name varchar(255),
-  about text
-);
--- atlas.sum --
-h1:X97sBPjOeiRWeoEdqpIpHAdzlshqOqllEKrJS9JruPo=
-20230201094614.sql h1:GkisBcewe1zpcP5IGGkbbsYSKJgV+fzlDVal+FKEjoE=
-`
-	require.Equal(t, exp, arc)
+	exp, err := os.ReadFile("internal/testdata/basic/migrations.tar.b64")
+	require.NoError(t, err)
+	require.EqualValues(t, string(exp), arc)
 }
 
 func TestInput(t *testing.T) {
@@ -38,13 +31,14 @@ func TestInput(t *testing.T) {
 	}))
 	input, err := Input(act)
 	require.NoError(t, err)
-	require.EqualValues(t, atlascloud.UploadDirInput{
-		Repo:      "ariga/test",
-		Commit:    "1234567890",
-		Branch:    "master",
-		Path:      "migrations/",
-		Driver:    atlascloud.DriverMysql,
-		Url:       "https://github.com/ariga/atlas-sync-action/commit/4a3f0bcb6dff19078393728f1b69d89d853771eb",
-		DirFormat: atlascloud.DirFormatAtlas,
+	require.EqualValues(t, atlascloud.ReportDirInput{
+		Repo:          "ariga/test",
+		Commit:        "1234567890",
+		Branch:        "master",
+		Path:          "migrations/",
+		Driver:        atlascloud.DriverMysql,
+		Url:           "https://github.com/ariga/atlas-sync-action/commit/4a3f0bcb6dff19078393728f1b69d89d853771eb",
+		DirFormat:     atlascloud.DirFormatAtlas,
+		ArchiveFormat: atlascloud.ArchiveFormatB64Tar,
 	}, input)
 }
