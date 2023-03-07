@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	cloudDomain = "https://ingress.atlasgo.cloud"
+	cloudDomain = "https://api.atlasgo.cloud"
 )
 
 func main() {
