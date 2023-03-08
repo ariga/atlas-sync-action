@@ -143,7 +143,7 @@ func client(act *githubactions.Action) *atlascloud.Client {
 	if err != nil {
 		act.Fatalf("failed to parse cloud-url: %v", err)
 	}
-	u.Path = "/api/query"
+	u.Path = "/query"
 	return atlascloud.New(u.String(), token)
 }
 
