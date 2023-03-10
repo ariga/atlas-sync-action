@@ -1,12 +1,9 @@
 package main
 
 import (
-	"archive/tar"
-	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
-	"io"
 	"net/url"
 	"strings"
 
@@ -42,52 +39,17 @@ func main() {
 	githubactions.Infof("Uploaded migration dir %q to Atlas Cloud", input.Path)
 }
 
-type file struct {
-	name string
-	data []byte
-}
-
 // Archive returns a b64 encoded tarball of the given migration directory.
 func Archive(path string) (string, error) {
-	d, err := migrate.NewLocalDir(path)
+	dir, err := migrate.NewLocalDir(path)
 	if err != nil {
 		return "", err
 	}
-	files, err := d.Files()
+	arc, err := migrate.ArchiveDir(dir)
 	if err != nil {
 		return "", err
 	}
-	var arc []file
-	for _, f := range files {
-		arc = append(arc, file{
-			name: f.Name(),
-			data: f.Bytes(),
-		})
-	}
-	sumf, err := d.Open(migrate.HashFileName)
-	if err != nil {
-		return "", fmt.Errorf("opening sumfile: %w", err)
-	}
-	curS, err := io.ReadAll(sumf)
-	if err != nil {
-		return "", fmt.Errorf("reading sumfile: %w", err)
-	}
-	sum, err := d.Checksum()
-	if err != nil {
-		return "", err
-	}
-	wantS, err := sum.MarshalText()
-	if err != nil {
-		return "", err
-	}
-	if !bytes.Equal(curS, wantS) {
-		return "", migrate.ErrChecksumMismatch
-	}
-	arc = append(arc, file{
-		name: migrate.HashFileName,
-		data: wantS,
-	})
-	return b64tar(arc)
+	return base64.StdEncoding.EncodeToString(arc), nil
 }
 
 func Input(act *githubactions.Action) (atlascloud.ReportDirInput, error) {
@@ -152,22 +114,4 @@ type PushEvent struct {
 		URL string `mapstructure:"url"`
 	} `mapstructure:"head_commit"`
 	Ref string `mapstructure:"ref"`
-}
-
-func b64tar(files []file) (string, error) {
-	var buf bytes.Buffer
-	tw := tar.NewWriter(&buf)
-	for _, f := range files {
-		if err := tw.WriteHeader(&tar.Header{
-			Name: f.name,
-			Mode: 0600,
-			Size: int64(len(f.data)),
-		}); err != nil {
-			return "", err
-		}
-		if _, err := tw.Write(f.data); err != nil {
-			return "", err
-		}
-	}
-	return base64.StdEncoding.EncodeToString(buf.Bytes()), nil
 }
