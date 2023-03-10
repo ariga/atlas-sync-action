@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/base64"
+	"io/fs"
 	"os"
 	"testing"
 
 	"ariga.io/atlas-sync-action/internal/atlascloud"
+	"ariga.io/atlas/sql/migrate"
 	"github.com/sethvargo/go-githubactions"
 	"github.com/stretchr/testify/require"
 )
@@ -12,9 +15,24 @@ import (
 func TestArchive(t *testing.T) {
 	arc, err := Archive("internal/testdata/basic/migrations")
 	require.NoError(t, err)
-	exp, err := os.ReadFile("internal/testdata/basic/migrations.tar.b64")
+	exp, err := os.ReadFile("internal/testdata/basic/atlas_archive.tar.b64")
 	require.NoError(t, err)
 	require.EqualValues(t, string(exp), arc)
+
+	// Test backwards compatability.
+	bc, err := os.ReadFile("internal/testdata/basic/bc.tar.b64")
+	require.NoError(t, err)
+	dec, err := base64.StdEncoding.DecodeString(string(bc))
+	require.NoError(t, err)
+	dir, err := migrate.UnarchiveDir(dec)
+	require.NoError(t, err)
+	for _, name := range []string{migrate.HashFileName, "20230201094614.sql"} {
+		ex, err := os.ReadFile("internal/testdata/basic/migrations/" + name)
+		require.NoError(t, err)
+		ac, err := fs.ReadFile(dir, name)
+		require.NoError(t, err)
+		require.Equal(t, ex, ac)
+	}
 }
 
 func TestInput(t *testing.T) {
