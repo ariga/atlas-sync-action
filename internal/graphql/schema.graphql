@@ -74,6 +74,7 @@ enum Driver  {
   MYSQL
   POSTGRESQL
   SQLITE
+  MARIADB
 }
 
 enum ArchiveFormat {

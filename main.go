@@ -87,6 +87,8 @@ func driver(s string) (atlascloud.Driver, error) {
 		return atlascloud.DriverMysql, nil
 	case "sqlite":
 		return atlascloud.DriverSqlite, nil
+	case "maria", "mariadb":
+		return atlascloud.DriverMariadb, nil
 	default:
 		return "", fmt.Errorf("unknown driver %q", s)
 	}
