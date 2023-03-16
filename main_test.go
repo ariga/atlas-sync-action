@@ -71,5 +71,4 @@ func TestInput(t *testing.T) {
 			}, input)
 		})
 	}
-
 }
