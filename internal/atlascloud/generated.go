@@ -28,6 +28,7 @@ const (
 	DriverMysql      Driver = "MYSQL"
 	DriverPostgresql Driver = "POSTGRESQL"
 	DriverSqlite     Driver = "SQLITE"
+	DriverMariadb    Driver = "MARIADB"
 )
 
 // Input type of ReportDir
