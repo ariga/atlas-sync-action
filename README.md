@@ -23,6 +23,10 @@ on:
   push:
     branches:
       - master # Only run on our main branch
+# Permissions for the GitHub token to write comments on the pull request.
+permissions:
+  contents: read
+  pull-requests: write
 jobs:
   sync:
     runs-on: ubuntu-latest
