@@ -42,6 +42,9 @@ jobs:
         run: go test -race ./...
   integration-tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
@@ -59,8 +62,8 @@ jobs:
         with:
           dir: internal/testdata/basic/migrations
           driver: mysql
-          cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
-          cloud-url: ${{ secrets.ATLAS_CLOUD_URL }}
+          cloud-public: true
+          cloud-url: https://gh-api.atlasgo.link
   docker:
     runs-on: ubuntu-latest
     needs: [golangci-lint, unit-tests, integration-tests]
