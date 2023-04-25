@@ -14,15 +14,13 @@ import (
 )
 
 const (
-	cloudDomain = "https://api.atlasgo.cloud"
+	cloudDomain       = "https://api.atlasgo.cloud"
+	cloudDomainPublic = "https://gh-api.atlasgo.cloud"
 )
 
 func main() {
 	act := githubactions.New()
-	token := act.GetInput("cloud-token")
-	if token == "" {
-		act.Fatalf("cloud-token is required")
-	}
+	c := client(act)
 	input, err := Input(act)
 	if err != nil {
 		act.Fatalf("failed to parse input: %v", err)
@@ -32,7 +30,6 @@ func main() {
 		act.Fatalf("failed to archive migration dir: %v", err)
 	}
 	input.Dir = arc
-	c := client(act)
 	if err := c.ReportDir(context.Background(), input); err != nil {
 		act.Fatalf("failed to upload dir: %v", err)
 	}
@@ -95,13 +92,24 @@ func driver(s string) (atlascloud.Driver, error) {
 }
 
 func client(act *githubactions.Action) *atlascloud.Client {
+	isPublic := strings.ToLower(act.GetInput("cloud-public")) == "true"
 	token := act.GetInput("cloud-token")
+	if token == "" && isPublic {
+		var err error
+		token, err = act.GetIDToken(context.Background(), "ariga://atlas-sync-action")
+		if err != nil {
+			act.Fatalf("failed to get id token: %v", err)
+		}
+	}
 	if token == "" {
 		act.Fatalf("cloud-token is required")
 	}
 	d := cloudDomain
-	if u := act.GetInput("cloud-url"); u != "" {
+	switch u := act.GetInput("cloud-url"); {
+	case u != "":
 		d = u
+	case isPublic:
+		d = cloudDomainPublic
 	}
 	u, err := url.Parse(d)
 	if err != nil {
