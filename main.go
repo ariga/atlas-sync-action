@@ -7,10 +7,12 @@ import (
 	"net/url"
 	"strings"
 
-	"ariga.io/atlas-sync-action/internal/atlascloud"
 	"ariga.io/atlas/sql/migrate"
+	"ariga.io/atlas/sql/sqltool"
 	"github.com/mitchellh/mapstructure"
 	"github.com/sethvargo/go-githubactions"
+
+	"ariga.io/atlas-sync-action/internal/atlascloud"
 )
 
 const (
@@ -25,7 +27,7 @@ func main() {
 	if err != nil {
 		act.Fatalf("failed to parse input: %v", err)
 	}
-	arc, err := Archive(input.Path)
+	arc, err := Archive(input.Path, input.DirFormat)
 	if err != nil {
 		act.Fatalf("failed to archive migration dir: %v", err)
 	}
@@ -37,8 +39,21 @@ func main() {
 }
 
 // Archive returns a b64 encoded tarball of the given migration directory.
-func Archive(path string) (string, error) {
-	dir, err := migrate.NewLocalDir(path)
+func Archive(path string, format atlascloud.DirFormat) (string, error) {
+	var (
+		dir migrate.Dir
+		err error
+	)
+	switch format {
+	case atlascloud.DirFormatAtlas:
+		dir, err = migrate.NewLocalDir(path)
+	case atlascloud.DirFormatFlyway:
+		dir, err = sqltool.NewFlywayDir(path)
+	case atlascloud.DirFormatGolangMigrate:
+		dir, err = sqltool.NewGolangMigrateDir(path)
+	default:
+		return "", fmt.Errorf("unknown dir format %q", format)
+	}
 	if err != nil {
 		return "", err
 	}

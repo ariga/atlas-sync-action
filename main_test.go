@@ -13,7 +13,7 @@ import (
 )
 
 func TestArchive(t *testing.T) {
-	arc, err := Archive("internal/testdata/basic/migrations")
+	arc, err := Archive("internal/testdata/basic/migrations", atlascloud.DirFormatAtlas)
 	require.NoError(t, err)
 	exp, err := os.ReadFile("internal/testdata/basic/atlas_archive.tar.b64")
 	require.NoError(t, err)
