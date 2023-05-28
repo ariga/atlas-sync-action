@@ -67,6 +67,8 @@ type Mutation {
 
 enum DirFormat {
   ATLAS
+  FLYWAY
+  GOLANG_MIGRATE
 }
 
 """Driver is enum for the field driver"""

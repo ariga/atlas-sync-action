@@ -18,7 +18,9 @@ const (
 type DirFormat string
 
 const (
-	DirFormatAtlas DirFormat = "ATLAS"
+	DirFormatAtlas         DirFormat = "ATLAS"
+	DirFormatFlyway        DirFormat = "FLYWAY"
+	DirFormatGolangMigrate DirFormat = "GOLANG_MIGRATE"
 )
 
 // Driver is enum for the field driver
