@@ -79,9 +79,10 @@ func Input(act *githubactions.Action) (atlascloud.ReportDirInput, error) {
 	if err != nil {
 		return atlascloud.ReportDirInput{}, err
 	}
-	dirFormat := atlascloud.DirFormat(strings.ToUpper(act.GetInput("dir-format")))
-	if dirFormat == "" {
-		dirFormat = atlascloud.DirFormatAtlas
+	fi := act.GetInput("dir-format")
+	dirFmt, err := dirFormat(fi)
+	if err != nil {
+		return atlascloud.ReportDirInput{}, err
 	}
 	return atlascloud.ReportDirInput{
 		Repo:          fmt.Sprintf("%s/%s", org, repo),
@@ -90,7 +91,7 @@ func Input(act *githubactions.Action) (atlascloud.ReportDirInput, error) {
 		Path:          act.GetInput("dir"),
 		Url:           ev.HeadCommit.URL,
 		Driver:        drv,
-		DirFormat:     dirFormat,
+		DirFormat:     dirFmt,
 		ArchiveFormat: atlascloud.ArchiveFormatB64Tar,
 	}, nil
 }
@@ -107,6 +108,19 @@ func driver(s string) (atlascloud.Driver, error) {
 		return atlascloud.DriverMariadb, nil
 	default:
 		return "", fmt.Errorf("unknown driver %q", s)
+	}
+}
+
+func dirFormat(s string) (atlascloud.DirFormat, error) {
+	switch s := strings.ToLower(s); s {
+	case "atlas", "":
+		return atlascloud.DirFormatAtlas, nil
+	case "flyway":
+		return atlascloud.DirFormatFlyway, nil
+	case "golang-migrate":
+		return atlascloud.DirFormatGolangMigrate, nil
+	default:
+		return "", fmt.Errorf("unknown dir-format %q", s)
 	}
 }
 
