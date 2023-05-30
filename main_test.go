@@ -51,6 +51,7 @@ func TestInput(t *testing.T) {
 				"GITHUB_SHA":        "1234567890",
 				"INPUT_DIR":         "migrations/",
 				"INPUT_DRIVER":      tc.db,
+				"INPUT_DIR-FORMAT":  "flyway",
 				"GITHUB_REF_NAME":   "master",
 				"GITHUB_EVENT_PATH": "internal/testdata/push_event.json",
 			}
@@ -66,7 +67,7 @@ func TestInput(t *testing.T) {
 				Path:          "migrations/",
 				Driver:        tc.driver,
 				Url:           "https://github.com/ariga/atlas-sync-action/commit/4a3f0bcb6dff19078393728f1b69d89d853771eb",
-				DirFormat:     atlascloud.DirFormatAtlas,
+				DirFormat:     atlascloud.DirFormatFlyway,
 				ArchiveFormat: atlascloud.ArchiveFormatB64Tar,
 			}, input)
 		})

@@ -79,6 +79,10 @@ func Input(act *githubactions.Action) (atlascloud.ReportDirInput, error) {
 	if err != nil {
 		return atlascloud.ReportDirInput{}, err
 	}
+	dirFormat := atlascloud.DirFormat(strings.ToUpper(act.GetInput("dir-format")))
+	if dirFormat == "" {
+		dirFormat = atlascloud.DirFormatAtlas
+	}
 	return atlascloud.ReportDirInput{
 		Repo:          fmt.Sprintf("%s/%s", org, repo),
 		Branch:        c.RefName,
@@ -86,7 +90,7 @@ func Input(act *githubactions.Action) (atlascloud.ReportDirInput, error) {
 		Path:          act.GetInput("dir"),
 		Url:           ev.HeadCommit.URL,
 		Driver:        drv,
-		DirFormat:     atlascloud.DirFormatAtlas,
+		DirFormat:     dirFormat,
 		ArchiveFormat: atlascloud.ArchiveFormatB64Tar,
 	}, nil
 }
