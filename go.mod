@@ -3,7 +3,7 @@ module ariga.io/atlas-sync-action
 go 1.20
 
 require (
-	ariga.io/atlas v0.9.2-0.20230309154950-f1b6be5375db
+	ariga.io/atlas v0.11.1-0.20230531063958-612030cbe8b2
 	github.com/Khan/genqlient v0.5.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/sethvargo/go-githubactions v1.1.0
