@@ -3,10 +3,13 @@ package main
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 
+	"ariga.io/atlas-go-sdk/atlasexec"
 	"ariga.io/atlas/sql/migrate"
 	"ariga.io/atlas/sql/sqltool"
 	"github.com/mitchellh/mapstructure"
@@ -15,14 +18,87 @@ import (
 	"ariga.io/atlas-sync-action/internal/atlascloud"
 )
 
-const (
-	cloudDomain       = "https://api.atlasgo.cloud"
-	cloudDomainPublic = "https://gh-api.atlasgo.cloud"
-)
+const cloudDomainPublic = "https://gh-api.atlasgo.cloud"
 
 func main() {
 	act := githubactions.New()
-	c := client(act)
+	if strings.ToLower(act.GetInput("cloud-public")) == "true" {
+		RunPublic(act)
+	} else {
+		RunCmd(act)
+	}
+	githubactions.Infof("Uploaded migration dir %q to Atlas Cloud", act.GetInput("path"))
+}
+
+// LoadParams loads the atlasexec params from the GitHub Action configuration.
+func LoadParams(act *githubactions.Action) (*atlasexec.MigratePushParams, error) {
+	c, err := act.Context()
+	if err != nil {
+		return nil, err
+	}
+	// Normalize the name.
+	reNotSlug := regexp.MustCompile(`[^a-z0-9-._]`)
+	name := reNotSlug.ReplaceAllString(
+		strings.ToLower(strings.Trim(act.GetInput("dir"), "- \t\n\r")),
+		"-",
+	)
+	org, repo := c.Repo()
+	ev := PushEvent{}
+	if err := mapstructure.Decode(c.Event, &ev); err != nil {
+		return nil, err
+	}
+	path := act.GetInput("path")
+	dirFmt := act.GetInput("dir-format")
+	if err != nil {
+		return nil, err
+	}
+	syncctx := ContextInput{
+		Repo:   fmt.Sprintf("%s/%s", org, repo),
+		Branch: c.RefName,
+		Commit: c.SHA,
+		Path:   path,
+		URL:    ev.HeadCommit.URL,
+	}
+	strctx, err := json.Marshal(syncctx)
+	if err != nil {
+		return nil, err
+	}
+	return &atlasexec.MigratePushParams{
+		Name:      name,
+		Tag:       act.GetInput("tag"),
+		DirURL:    fmt.Sprintf("file://%s", path),
+		DevURL:    act.GetInput("dev-url"),
+		DirFormat: dirFmt,
+		Context:   string(strctx),
+	}, nil
+}
+
+// RunCmd pushed the directory to Atlas Cloud using atlasexec.
+func RunCmd(act *githubactions.Action) {
+	c, err := atlasexec.NewClient("", "atlas")
+	if err != nil {
+		act.Fatalf("failed to connect to Atlas Cloud: %v", err)
+	}
+	if err = c.Login(context.Background(), &atlasexec.LoginParams{Token: act.GetInput("cloud-token")}); err != nil {
+		act.Fatalf("failed to login to Atlas Cloud: %v", err)
+	}
+	params, err := LoadParams(act)
+	if err != nil {
+		act.Fatalf("failed to load params: %v", err)
+	}
+	_, err = c.MigratePush(context.Background(), params)
+	if err != nil {
+		act.Fatalf("failed to push directory: %v", err)
+	}
+}
+
+// RunPublic uploads the directory to Atlas Cloud using the public API.
+func RunPublic(act *githubactions.Action) {
+	token, err := act.GetIDToken(context.Background(), "ariga://atlas-sync-action")
+	if err != nil {
+		act.Fatalf("failed to get id token: %v", err)
+	}
+	c := client(act, token)
 	input, err := Input(act)
 	if err != nil {
 		act.Fatalf("failed to parse input: %v", err)
@@ -35,7 +111,6 @@ func main() {
 	if err := c.ReportDir(context.Background(), input); err != nil {
 		act.Fatalf("failed to upload dir: %v", err)
 	}
-	githubactions.Infof("Uploaded migration dir %q to Atlas Cloud", input.Path)
 }
 
 // Archive returns a b64 encoded tarball of the given migration directory.
@@ -124,27 +199,11 @@ func dirFormat(s string) (atlascloud.DirFormat, error) {
 	}
 }
 
-func client(act *githubactions.Action) *atlascloud.Client {
-	isPublic := strings.ToLower(act.GetInput("cloud-public")) == "true"
-	token := act.GetInput("cloud-token")
-	if token == "" && isPublic {
-		var err error
-		token, err = act.GetIDToken(context.Background(), "ariga://atlas-sync-action")
-		if err != nil {
-			act.Fatalf("failed to get id token: %v", err)
-		}
-	}
+func client(act *githubactions.Action, token string) *atlascloud.Client {
 	if token == "" {
 		act.Fatalf("cloud-token is required")
 	}
-	d := cloudDomain
-	switch u := act.GetInput("cloud-url"); {
-	case u != "":
-		d = u
-	case isPublic:
-		d = cloudDomainPublic
-	}
-	u, err := url.Parse(d)
+	u, err := url.Parse(cloudDomainPublic)
 	if err != nil {
 		act.Fatalf("failed to parse cloud-url: %v", err)
 	}
@@ -157,4 +216,12 @@ type PushEvent struct {
 		URL string `mapstructure:"url"`
 	} `mapstructure:"head_commit"`
 	Ref string `mapstructure:"ref"`
+}
+
+type ContextInput struct {
+	Repo   string `json:"repo"`
+	Path   string `json:"path"`
+	Branch string `json:"branch"`
+	Commit string `json:"commit"`
+	URL    string `json:"url"`
 }

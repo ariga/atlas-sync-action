@@ -5,21 +5,33 @@ branding:
 author: 'Ariga'
 inputs:
   dir:
-    description: 'select migration directory relative to working directory'
+    description: 'The name of the migration directory in Atlas Cloud'
+    required: true
+  tag:
+    description: 'The tag ot the migration directory in Atlas Cloud'
+    required: false
+  path:
+    description: 'Path of the migration directory relative to working directory'
+    required: true
+  dev-url:
+    description: 'URL for the dev database'
     required: true
   dir-format:
     description: 'Dir format for migration files ("atlas", "golang-migrate", "flyway")'
     required: false
   cloud-token:
-    description: 'Token for using Atlas Cloud (should be passed as a secret).'
+    description: 'Token for using Atlas Cloud (should be passed as a secret)'
     required: true
   cloud-public:
     description: 'Set true to send report to gh.atlasgo.cloud'
     default: false
     required: false
-  driver:
-    description: 'Driver for the target database: mysql, postgres, sqlite'
-    required: true
+outputs:
+  error:
+    description: 'Error message if any'
+  url:
+    description: 'URL of the new directory/tag'
+
 runs:
   using: 'docker'
   image: 'docker://arigaio/atlas-sync-action:latest'
