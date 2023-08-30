@@ -62,7 +62,7 @@ jobs:
         with:
           dir: internal/testdata/basic/migrations
           name: sync-action-integration-test
-          cloud-token: ${{ secrets.NC_ATLAS_CLOUD_TOKEN }}
+          cloud-token: ${{ secrets.INTEGRATION_ATLAS_CLOUD_TOKEN }}
           dev-url: "sqlite://file?cache=shared&mode=memory"
       - name: sanity-public
         uses: ./internal/action
