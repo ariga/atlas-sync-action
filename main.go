@@ -37,10 +37,14 @@ func LoadParams(act *githubactions.Action) (*atlasexec.MigratePushParams, error)
 	if err != nil {
 		return nil, err
 	}
+	inputName := act.GetInput("name")
+	if inputName == "" {
+		act.Fatalf("name is required")
+	}
 	// Normalize the name.
 	reNotSlug := regexp.MustCompile(`[^a-z0-9-._]`)
 	name := reNotSlug.ReplaceAllString(
-		strings.ToLower(strings.Trim(act.GetInput("dir"), "- \t\n\r")),
+		strings.ToLower(strings.Trim(inputName, "- \t\n\r")),
 		"-",
 	)
 	org, repo := c.Repo()
