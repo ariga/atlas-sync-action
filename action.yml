@@ -5,20 +5,30 @@ branding:
 author: 'Ariga'
 inputs:
   dir:
-    description: 'The path to the directory containing your migrations.'
+    description: 'Select migration directory relative to working directory'
     required: true
   name:
-    description: 'The name of the migration directory in Atlas Cloud.'
+    description: 'The name of the migration directory in Atlas Cloud'
     required: true
   tag:
-    description: 'The tag of the specific version of the migration directory.'
+    description: 'The tag ot the migration directory in Atlas Cloud'
     required: false
   dev-url:
-    description: 'The URL of the dev database to connect to.'
+    description: 'URL for the dev database'
     required: true
+  dir-format:
+    description: 'Dir format for migration files ("atlas", "golang-migrate", "flyway")'
+    required: false
+  driver:
+    description: 'Driver for the target database: mysql, postgres, sqlite'
+    required: false
   cloud-token:
-    description: 'The Atlas Cloud token to use for authentication. Must be passed as a secret.'
+    description: 'Token for using Atlas Cloud (should be passed as a secret)'
     required: true
+  cloud-public:
+    description: 'Set true to send report to gh.atlasgo.cloud'
+    default: false
+    required: false
 outputs:
   url:
     description: 'URL of the new directory/tag'

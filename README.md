@@ -31,9 +31,7 @@ jobs:
       - uses: ariga/atlas-sync-action@v0
           with:
             dir: path/to/migrations
-            name: my_app
-            tag: ${{ github.sha }} # optional
-            dev-url: "sqlite://file?cache=shared&mode=memory"
+            driver: mysql # or: postgres | sqlite
             cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
 ```
 
@@ -43,21 +41,14 @@ Configure this action with the following inputs:
 
 #### `dir`
 
-The path to the directory containing your migrations.
+**Required** The path to the directory containing your migrations.
 
-#### `name`
+#### `driver`
 
-The name of the migration directory in Atlas Cloud.
-
-#### `tag` (optional)
-
-The tag of the specific version of the migration directory.
-
-
-#### `dev-url` (optional)
-
-The URL of the dev database to connect to.
+**Required** The database driver to use. One of: `mysql`, `postgres`, `sqlite`.
 
 #### `cloud-token`
 
-The Atlas Cloud token to use for authentication. Must be passed as a secret.
+**Required** The Atlas Cloud token to use for authentication.
+
+The full list of options can be found in the [action.yml](action.yml) file.
