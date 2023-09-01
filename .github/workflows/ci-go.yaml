@@ -9,7 +9,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: '1.21'
+          go-version: 1.19
       - uses: actions/cache@v3
         with:
           path: |
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
         with:
-          go-version: '1.21'
+          go-version: 1.19
       - uses: actions/cache@v3
         with:
           path: |
@@ -57,19 +57,11 @@ jobs:
           tags: local
           load: true
       - run: docker images
-      - name: sanity-push
+      - name: sanity
         uses: ./internal/action
         with:
           dir: internal/testdata/basic/migrations
-          name: sync-action-integration-test
-          cloud-token: ${{ secrets.NC_ATLAS_CLOUD_TOKEN }}
-          dev-url: "sqlite://file?cache=shared&mode=memory"
-      - name: sanity-public
-        uses: ./internal/action
-        with:
-          name: sync-action-integration-test
-          dir: internal/testdata/basic/migrations
-          driver: sqlite
+          driver: mysql
           cloud-public: true
           cloud-url: https://gh-api.atlasgo.link
   docker:
