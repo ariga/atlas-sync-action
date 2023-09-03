@@ -45,6 +45,21 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    services:
+      # Spin up a mysql:8 container to be used as the dev-database for analysis.
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_DATABASE: dev
+          MYSQL_ROOT_PASSWORD: pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -ppass"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
@@ -56,14 +71,26 @@ jobs:
           file: ./.github/workflows/Dockerfile
           tags: local
           load: true
-      - run: docker images
       - name: sanity-push
         uses: ./internal/action
         with:
           dir: internal/testdata/basic/migrations
           name: sync-action-integration-test
           cloud-token: ${{ secrets.INTEGRATION_ATLAS_CLOUD_TOKEN }}
-          dev-url: "sqlite://file?cache=shared&mode=memory"
+          dev-url: "mysql://root:pass@mysql:3306/dev"
+      - name: no-dev-url
+        uses: ./internal/action
+        continue-on-error: true
+        with:
+          dir: internal/testdata/basic/migrations
+          name: sync-action-integration-test
+          cloud-token: ${{ secrets.INTEGRATION_ATLAS_CLOUD_TOKEN }}
+      - name: check no-dev-url failure
+        if: steps.no-dev-url.outcome == 'success'
+        uses: actions/github-script@v3
+        with:
+          script: |
+            core.setFailed('action did not fail without dev-url')
       - name: sanity-public
         uses: ./internal/action
         with:

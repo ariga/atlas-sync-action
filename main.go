@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"path"
 	"regexp"
 	"strconv"
 	"strings"
@@ -31,69 +32,81 @@ func main() {
 	githubactions.Infof("Uploaded migration dir %q to Atlas Cloud", act.GetInput("dir"))
 }
 
-// LoadParams loads the atlasexec params from the GitHub Action configuration.
-func LoadParams(act *githubactions.Action) (*atlasexec.MigratePushParams, error) {
-	c, err := act.Context()
-	if err != nil {
-		return nil, err
+// loadPushParams loads the atlasexec params from the GitHub Action configuration.
+func loadPushParams(act *githubactions.Action, c *githubactions.GitHubContext) *atlasexec.MigratePushParams {
+	dev := act.GetInput("dev-url")
+	if dev == "" {
+		act.Fatalf("'dev-url' input is required. See: https://github.com/marketplace/actions/atlas-sync-action#usage")
 	}
-	inputName := act.GetInput("name")
-	if inputName == "" {
-		act.Fatalf("name is required")
+	dirPath := act.GetInput("dir")
+	if dirPath == "" {
+		act.Fatalf("'dir' input is required. See: https://github.com/marketplace/actions/atlas-sync-action#usage")
+	}
+	name := act.GetInput("name")
+	if name == "" {
+		name = path.Join(c.Repository, dirPath)
 	}
 	// Normalize the name.
 	reNotSlug := regexp.MustCompile(`[^a-z0-9-._]`)
-	name := reNotSlug.ReplaceAllString(
-		strings.ToLower(strings.Trim(inputName, "- \t\n\r")),
+	name = reNotSlug.ReplaceAllString(
+		strings.ToLower(strings.Trim(name, "- \t\n\r")),
 		"-",
 	)
-	org, repo := c.Repo()
 	ev := PushEvent{}
 	if err := mapstructure.Decode(c.Event, &ev); err != nil {
-		return nil, err
-	}
-	path := act.GetInput("dir")
-	dirFmt := act.GetInput("dir-format")
-	if err != nil {
-		return nil, err
+		act.Fatalf("failed to parse push event: %v", err)
 	}
 	syncctx := ContextInput{
-		Repo:   fmt.Sprintf("%s/%s", org, repo),
+		Repo:   c.Repository,
 		Branch: c.RefName,
 		Commit: c.SHA,
-		Path:   path,
+		Path:   dirPath,
 		URL:    ev.HeadCommit.URL,
 	}
 	buf, err := json.Marshal(syncctx)
 	if err != nil {
-		return nil, err
+		act.Fatalf("failed to encode context info: %v", err)
 	}
 	return &atlasexec.MigratePushParams{
-		Name:      name,
-		Tag:       act.GetInput("tag"),
-		DirURL:    fmt.Sprintf("file://%s", path),
-		DevURL:    act.GetInput("dev-url"),
-		DirFormat: dirFmt,
-		Context:   string(buf),
-	}, nil
+		Name:    name,
+		DirURL:  fmt.Sprintf("file://%s", dirPath),
+		DevURL:  dev,
+		Context: string(buf),
+	}
 }
 
 // RunCmd pushed the directory to Atlas Cloud using atlasexec.
 func RunCmd(act *githubactions.Action) {
+	ctx, err := act.Context()
+	if err != nil {
+		act.Fatalf("failed to load action context: %v", err)
+	}
+	params := loadPushParams(act, ctx)
+	token := act.GetInput("cloud-token")
+	if token == "" {
+		act.Fatalf("'cloud-token' input is required. See https://github.com/marketplace/actions/atlas-sync-action#usage")
+	}
 	c, err := atlasexec.NewClient("", "atlas")
 	if err != nil {
 		act.Fatalf("failed to connect to Atlas Cloud: %v", err)
 	}
-	if err = c.Login(context.Background(), &atlasexec.LoginParams{Token: act.GetInput("cloud-token")}); err != nil {
+	if err = c.Login(context.Background(), &atlasexec.LoginParams{Token: token}); err != nil {
 		act.Fatalf("failed to login to Atlas Cloud: %v", err)
 	}
-	params, err := LoadParams(act)
-	if err != nil {
-		act.Fatalf("failed to load params: %v", err)
-	}
-	resp, err := c.MigratePush(context.Background(), params)
+	_, err = c.MigratePush(context.Background(), params)
 	if err != nil {
 		act.Fatalf("failed to push directory: %v", err)
+	}
+	// Create tag.
+	params.Tag = func() string {
+		if tag := act.GetInput("tag"); tag != "" {
+			return tag
+		}
+		return ctx.SHA
+	}()
+	resp, err := c.MigratePush(context.Background(), params)
+	if err != nil {
+		act.Fatalf("failed to create dir tag: %v", err)
 	}
 	act.SetOutput("url", resp)
 }

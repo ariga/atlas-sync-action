@@ -45,7 +45,7 @@ Configure this action with the following inputs:
 
 The path to the directory containing your migrations.
 
-#### `name`
+#### `name` (optional)
 
 The name of the migration directory in Atlas Cloud.
 
