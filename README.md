@@ -26,15 +26,27 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_DATABASE: dev
+          MYSQL_ROOT_PASSWORD: pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -ppass"
+          --health-interval 10s
+          --health-start-period 10s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v3
       - uses: ariga/atlas-sync-action@v0
-          with:
-            dir: path/to/migrations
-            name: my_app
-            tag: ${{ github.sha }} # optional
-            dev-url: "sqlite://file?cache=shared&mode=memory"
-            cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
+        with:
+          dir: 'migrations'
+          dev-url: 'mysql://root:pass@mysql:3306/dev'
+          cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
 ```
 
 ## Configuration
@@ -51,12 +63,11 @@ The name of the migration directory in Atlas Cloud.
 
 #### `tag` (optional)
 
-The tag of the specific version of the migration directory.
+When continuously syncing your directory, this input can be used to provide a unique identifier for each version. Defaults to the commit SHA.
 
+#### `dev-url`
 
-#### `dev-url` (optional)
-
-The URL of the dev database to connect to.
+The URL of the dev database to connect to. Atlas will use this database to check the validity of the SQL files before syncing them to Atlas Cloud.
 
 #### `cloud-token`
 
