@@ -43,6 +43,7 @@ jobs:
       - uses: ariga/atlas-sync-action@v0
         with:
           dir: 'migrations'
+          name: 'app'
           dev-url: 'mysql://root:pass@mysql:3306/dev'
           cloud-token: ${{ secrets.ATLAS_CLOUD_TOKEN }}
 ```
@@ -70,3 +71,8 @@ The URL of the dev database to connect to. Atlas will use this database to check
 #### `cloud-token`
 
 The Atlas Cloud token to use for authentication. Must be passed as a secret.
+
+## Next steps
+
+1. [`ariga/atlas-action`](https://github.com/ariga/atlas-action) - A GitHub Action to set up CI for database schema changes.
+2. [`ariga/atlas-deploy-action`](https://github.com/ariga/atlas-deploy-action) - A GitHub Action to deploy schema migrations.
