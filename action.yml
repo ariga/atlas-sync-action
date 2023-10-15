@@ -1,5 +1,5 @@
 name: 'atlas-sync-action'
-description: 'Sync your migration directory to Atlas Cloud'
+description: 'Deprecated. Sync your migration directory to Atlas Cloud'
 branding:
   icon: database
 author: 'Ariga'
