@@ -24,6 +24,8 @@ const cloudDomainPublic = "https://gh-api.atlasgo.cloud"
 
 func main() {
 	act := githubactions.New()
+	act.Warningf("This action is deprecated. Please use ariga/atlas-action/migrate/push instead. ")
+	act.Warningf("For details see: https://github.com/ariga/atlas-action#arigaatlas-actionmigratepush")
 	if ok, err := strconv.ParseBool(act.GetInput("cloud-public")); err == nil && ok {
 		RunPublic(act)
 	} else {
