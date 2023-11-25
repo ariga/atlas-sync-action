@@ -1,10 +1,10 @@
 # atlas-sync-action
 
-## Deprecation Notice
-
-This action has been deprecated in favor of the `ariga/atlas-action/migrate/push` action.
-
-Please see [the docs](https://github.com/ariga/atlas-action#arigaatlas-actionmigratepush) for more
+> [!IMPORTANT]
+> ## Deprecation Notice
+> This action has been deprecated in favor of the `ariga/atlas-action/migrate/push` action.
+>
+> Please see [the docs](https://github.com/ariga/atlas-action#arigaatlas-actionmigratepush) for more
 details.
 
 ## About
